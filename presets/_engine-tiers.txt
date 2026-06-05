@@ -1,0 +1,6 @@
+# Reference: extra Engine.ini CVars per tier (maintainer notes)
+# minimum/potato: CSM=1, ShadowMax=64, foliage=0, DF=off
+# low:           CSM=2, ShadowMax=512, foliage=0.5
+# medium:        CSM=3, ShadowMax=1024, foliage=0.75
+# high:          CSM=4, ShadowMax=2048, foliage=1.0
+# ultramax:      CSM=4, ShadowMax=4096, foliage=1.0

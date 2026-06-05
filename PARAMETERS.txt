@@ -1,0 +1,188 @@
+=======================================================================
+  SUBNAUTICA 2 GRAPHICS PARAMETERS REFERENCE
+=======================================================================
+
+FILE LOCATIONS
+--------------
+  Player (editable):     %LOCALAPPDATA%\Subnautica2\Saved\Config\Windows\
+  Xbox Game Pass:        %LOCALAPPDATA%\Subnautica2\Saved\Config\WinGDK\
+  Game defaults (.pak):  Subnautica2\Content\Paks\Subnautica2-Windows.pak
+                         -> DefaultEngine.ini, DefaultScalability.ini, etc.
+
+EDIT THE GAME (.pak) DIRECTLY?
+------------------------------
+  Possible with FModel/repak but NOT recommended:
+  - Steam overwrites on update
+  - File integrity risk
+  - Almost everything is available via AppData
+
+  Correct approach: GameUserSettings.ini + Engine.ini in AppData.
+  Set Engine.ini Read-only or the game may delete it.
+
+=======================================================================
+  GameUserSettings.ini
+=======================================================================
+
+[ScalabilityGroups] - scale 0..4 (ResolutionQuality = percent)
+  sg.ViewDistanceQuality       - view distance
+  sg.AntiAliasingQuality       - anti-aliasing (often missed in guides)
+  sg.ShadowQuality             - shadows
+  sg.GlobalIlluminationQuality - global illumination
+  sg.ReflectionQuality         - reflections
+  sg.PostProcessQuality        - post processing
+  sg.TextureQuality            - textures
+  sg.EffectsQuality            - effects/particles
+  sg.FoliageQuality            - foliage
+  sg.ShadingQuality            - shading
+  sg.LandscapeQuality          - landscape
+  sg.CloudsQuality             - clouds
+  sg.ResolutionQuality         - render scale (50-100)
+
+[/Script/Subnautica2.SN2SettingsLocal] - in-game menu settings
+  UpscalingMethod              - U_DLSS / U_FSR / U_TSR / U_None
+  DLSSQualityMode              - 0=DLAA .. 4=Performance
+  TSRQualityMode               - TSR quality
+  ResolutionScaleMin/Max/Fixed/DLSS
+  bUseDynamicResolution
+  UpscalingFrameGeneration     - DLSS Frame Gen (Streamline)
+  bUseVSync, FrameRateLimit*
+  ResolutionSizeX/Y, FullscreenMode
+  bUseHDRDisplayOutput, HDRDisplayOutputNits
+  GammaValue
+  EnableMotionBlur             - On/Off
+  EnableLensFlare              - On/Off
+  EnableChromaticAberration    - On/Off
+  EnableUnderwaterBlur         - On/Off
+  AudioQualityLevel
+  ROGAllyCustomModeEnabled     - ASUS ROG Ally mode
+
+  FOV (not in menu, config only):
+  FieldOfView / DesiredFOV     - GameUserSettings or SN2SettingsLocal
+
+[/Script/Engine.GameUserSettings]
+  bUseDesiredScreenHeight
+  FieldOfView                  - alternate FOV section
+
+=======================================================================
+  Engine.ini - advanced UE5 CVars
+=======================================================================
+
+LUMEN / LIGHTING
+  r.DynamicGlobalIlluminationMethod   0=off, 1=Lumen
+  r.ReflectionMethod                  0=SSR, 1=Lumen
+  r.Lumen.DiffuseIndirect.Allow
+  r.Lumen.Reflections.Allow
+  r.Lumen.HardwareRayTracing
+  r.Lumen.TraceMeshSDFs
+  r.Lumen.ScreenProbeGather.*
+
+SHADOWS / AO / FOG
+  r.ViewDistanceScale
+  r.CastShadows, r.ShadowQuality
+  r.Shadow.Virtual.Enable             - Virtual Shadow Maps
+  r.ContactShadows
+  r.AmbientOcclusionLevels/MaxQuality
+  r.VolumetricFog, r.VolumetricFog.GridPixelSize
+
+TEXTURES / VRAM
+  r.Streaming.PoolSize                  1024=6GB, 4096=8GB, 6000=12GB+
+  r.Streaming.LimitPoolSizeToVRAM
+  r.MaxAnisotropy                       2/4/8/16
+
+POST PROCESS (often not in game menu)
+  r.BloomQuality                        0-5
+  r.DepthOfFieldQuality                 0-2
+  r.MotionBlurQuality                   0-4
+  r.LensFlareQuality                    0-2
+  r.PostProcessAAQuality                0-6
+  r.FilmGrain, r.FilmGrainIntensity
+  r.SceneColorFringeQuality             - chromatic aberration
+  r.RayTracing                          - global RT
+
+SN2-SPECIFIC (from DefaultDeviceProfiles in .pak)
+  r.DynamicRes.OperationMode
+  r.Water.EnableShallowWaterSimulation
+  r.Water.SingleLayer.Reflection        0-2
+  r.SkyAtmosphereAsyncCompute
+  r.SceneDepthHZBAsyncCompute
+  r.Fog.HZBAsyncCompute
+  r.CustomDepth
+  r.Nanite.MaterialVisibility
+
+PERFORMANCE / IO
+  r.RHICmdUseThread, r.Parallel*
+  r.AsyncCompute, r.D3D12.*
+  s.AsyncLoading*, s.IoDispatcher*
+  r.IO.UseDirectStorage                 - NVMe SSD
+  r.Reflex.Enable/Boost                 - NVIDIA Reflex
+  r.NGX.Enable                          - DLSS/NGX
+
+[Engine.InputSettings]
+  bDisableMouseAcceleration
+  bEnableMouseSmoothing
+  RawMouseInputEnabled
+  bViewAccelerationEnabled          - potato preset
+
+=======================================================================
+  From DefaultEngine.ini / DeviceProfiles (found in .pak)
+=======================================================================
+
+[/Script/Engine.RendererSettings]
+  r.PSOPrecache.Mode=1              - PSO precache, fewer hitches
+
+[SystemSettings] (game default)
+  sg.DefaultScalabilityLevel=0      - UE5 base tier (0-4)
+
+[Windows DeviceProfile] - SN2 CVars (in presets v2)
+  + all sg.* + r.Water.* + r.SkyAtmosphereAsyncCompute
+  + r.SceneDepthHZBAsyncCompute + r.Fog.HZBAsyncCompute
+  + r.CustomDepth + r.Nanite.MaterialVisibility
+
+EXTRA CVars (community + UE5, added in v2)
+  r.Shadow.CSM.MaxCascades          - 1 (potato) .. 4 (ultra)
+  r.Shadow.MaxResolution            - 64 .. 4096
+  r.ReflectionEnvironment           - 0/1
+  r.GenerateMeshDistanceFields      - 0/1 (CPU/GPU load)
+  r.DistanceFieldShadowing          - 0/1
+  foliage.DensityScale              - 0.0 .. 1.0
+  grass.DensityScale                - 0.0 .. 1.0
+  r.HZBOcclusion                    - 0/1
+  r.OneFrameThreadLag=0             - input lag fix
+  r.Tonemapper.Sharpen              - sharpness (0 = off)
+  r.Streaming.FramesForFullUpdate   - texture streaming
+  r.Streaming.Boost                 - 0/1
+  r.ScreenPercentage                - potato preset only (70%)
+  r.RayTracing.*                    - individual RT flags
+
+=======================================================================
+  Inside .pak but compressed (needs extraction to read)
+=======================================================================
+  DefaultScalability.ini    - [ViewDistanceQuality@0..3] -> r.*
+  SteamDeckEngine.ini       - Steam Deck profile
+  BaseStreamlineCore.ini    - DLSS/Reflex/DeepDVC limits
+  DefaultMySetting.ini      - internal UWE settings
+  DefaultDeviceProfiles.ini - GPU profiles (ROG Ally, Xbox, etc.)
+
+  Pak path: Subnautica2\Content\Paks\Subnautica2-Windows.pak
+  Tools: FModel, repak, unrealpak (UE5 SDK)
+
+=======================================================================
+  Do not touch (not graphics / no benefit)
+=======================================================================
+  [/Script/Subnautica2.SN2UISettings]  - UI text scale
+  DefaultUWE*.ini                     - gameplay, spawn, saves
+  [ConsoleVariables] r.CEFGPUAcceleration - internal CEF browser
+  Input.ini                             - controls (except mouse)
+
+=======================================================================
+  Mod presets (v2)
+=======================================================================
+  minimum  - DLSS Perf, 50%, Lumen off, CSM=1
+  low      - DLSS Balanced, 60%
+  medium   - DLSS Quality, 75%, Lumen GI
+  high     - DLSS Quality+, 90%, Lumen reflections
+  ultramax - DLSS DLAA, 100%, Lumen (software RT - HW RT disabled, see below)
+  potato   - DLSS Perf, 40%, ScreenPercentage 70%, all off
+  amd_fsr  - medium + UpscalingMethod=U_FSR (07_AMD_FSR.bat)
+
+=======================================================================
