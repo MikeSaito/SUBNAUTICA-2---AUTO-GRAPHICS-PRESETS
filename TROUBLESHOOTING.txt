@@ -48,6 +48,35 @@ Use 04_High or 03_Medium. Lower r.Streaming.PoolSize if VRAM is limited.
 Use 06_Potato or 01_Minimum on very weak PCs.
 
 
+Preset made game SLOWER or stuttery (even Potato)
+-------------------------------------------------
+Valid report for mod versions before v2.2. Causes:
+
+1. Engine.ini disabled Nanite (r.Nanite=0) on low presets.
+   Subnautica 2 is built for Nanite; turning it off forces a slower
+   fallback path and can tank FPS.
+
+2. Triple resolution scaling on Potato:
+   dynamic resolution + r.ScreenPercentage=70 + DLSS 40% scale.
+   That causes hitching and blurry output without real FPS gain.
+
+3. AMD GPU + DLSS preset = broken upscaling path (use 07_AMD_FSR).
+
+4. Full file replace from Nexus without merging (loses tuned defaults).
+
+FIX (v2.2+):
+  1. Close game.
+  2. restore-backup.bat OR delete Engine.ini (remove Read-only first).
+  3. Re-apply preset with updated mod files.
+
+If still worse than vanilla:
+  A) Settings-only (no Engine.ini):
+     powershell -File apply-preset.ps1 -Preset potato -SettingsOnly
+  B) Delete Engine.ini entirely and tune only in-game menu.
+  C) Merge ONLY [ScalabilityGroups] + SN2SettingsLocal from preset;
+     skip Engine.ini completely.
+
+
 AMD GPU
 -------
 Use 07_AMD_FSR or set UpscalingMethod=U_FSR in GameUserSettings.ini.

@@ -4,7 +4,8 @@ param(
     [ValidateSet('minimum', 'low', 'medium', 'high', 'ultramax', 'potato')]
     [string]$Preset,
     [switch]$NoReadOnly,
-    [switch]$ForceFSR
+    [switch]$ForceFSR,
+    [switch]$SettingsOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -143,6 +144,21 @@ if ($ForceFSR -and $merged.Contains('/Script/Subnautica2.SN2SettingsLocal')) {
     $sn2['UpscalingMethod'] = 'U_FSR'
     $sn2.Remove('DLSSQualityMode')
     $sn2['UpscalingFrameGeneration'] = '0'
+} elseif ($merged.Contains('/Script/Subnautica2.SN2SettingsLocal') -and $existing.Contains('/Script/Subnautica2.SN2SettingsLocal')) {
+    $sn2Merged = $merged['/Script/Subnautica2.SN2SettingsLocal']
+    $sn2Existing = $existing['/Script/Subnautica2.SN2SettingsLocal']
+    if ($sn2Existing.Contains('UpscalingMethod')) {
+        $method = $sn2Existing['UpscalingMethod']
+        if ($method -in @('U_FSR', 'U_TSR', 'U_None')) {
+            $sn2Merged['UpscalingMethod'] = $method
+            if ($method -ne 'U_DLSS') {
+                $sn2Merged.Remove('DLSSQualityMode')
+            }
+            if ($sn2Existing.Contains('UpscalingFrameGeneration')) {
+                $sn2Merged['UpscalingFrameGeneration'] = $sn2Existing['UpscalingFrameGeneration']
+            }
+        }
+    }
 }
 
 $metaHeader = ';METADATA=(Diff=true, UseCommands=true)'
@@ -150,7 +166,12 @@ Write-IniFile -Path (Join-Path $ConfigDir 'GameUserSettings.ini') -Data $merged 
 
 $enginePreset = Join-Path $PresetDir 'Engine.ini'
 $engineTarget = Join-Path $ConfigDir 'Engine.ini'
-if (Test-Path $enginePreset) {
+if ($SettingsOnly) {
+    Write-Host '  Settings-only mode: Engine.ini not changed.' -ForegroundColor Yellow
+    if (Test-Path $engineTarget) {
+        Write-Host '  Tip: delete Engine.ini in AppData if a previous preset caused stutter.' -ForegroundColor DarkYellow
+    }
+} elseif (Test-Path $enginePreset) {
     Copy-Item $enginePreset $engineTarget -Force
     if (-not $NoReadOnly) {
         $item = Get-Item $engineTarget
@@ -184,7 +205,7 @@ Write-Host "  Config: $ConfigDir"
 Write-Host "  Backup: $BackupDir"
 Write-Host ''
 Write-Host '  Screen resolution and FOV preserved from current config.'
-if (-not $NoReadOnly -and (Test-Path $engineTarget)) {
+if (-not $SettingsOnly -and -not $NoReadOnly -and (Test-Path $engineTarget)) {
     Write-Host '  Engine.ini set to Read-only (game will not delete tweaks).'
 }
 Write-Host '  Launch the game to verify settings.'

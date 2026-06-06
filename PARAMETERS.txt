@@ -182,7 +182,10 @@ EXTRA CVars (community + UE5, added in v2)
   medium   - DLSS Quality, 75%, Lumen GI
   high     - DLSS Quality+, 90%, Lumen reflections
   ultramax - DLSS DLAA, 100%, Lumen (software RT - HW RT disabled, see below)
-  potato   - DLSS Perf, 40%, ScreenPercentage 70%, all off
+  potato   - DLSS Perf, 40%, fixed scale (no ScreenPercentage stack)
   amd_fsr  - medium + UpscalingMethod=U_FSR (07_AMD_FSR.bat)
+
+  v2.2: low presets keep Nanite ON; dynamic resolution OFF on min/low/potato.
+  Use apply-preset.ps1 -SettingsOnly to change menu settings without Engine.ini.
 
 =======================================================================
