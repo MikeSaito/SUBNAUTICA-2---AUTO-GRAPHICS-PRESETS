@@ -10,14 +10,20 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$winGdkDir  = Join-Path $env:LOCALAPPDATA 'Subnautica2\Saved\Config\WinGDK'
-$windowsDir = Join-Path $env:LOCALAPPDATA 'Subnautica2\Saved\Config\Windows'
-if ((Test-Path $winGdkDir) -and -not (Test-Path (Join-Path $windowsDir 'GameUserSettings.ini'))) {
-    $ConfigDir = $winGdkDir
-} else {
-    $ConfigDir = $windowsDir
+$ModDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $ModDir 'game-path.ps1')
+
+$gameRoot = Find-GameRoot '' $ModDir
+if (-not $gameRoot) {
+    Write-Host '[ERROR] Subnautica 2 not found. Install the game or enter the correct folder path.' -ForegroundColor Red
+    exit 1
 }
-$ModDir     = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+$ConfigDir = Resolve-ConfigDir $gameRoot
+if (-not $ConfigDir) {
+    Write-Host '[ERROR] Config folder not found. Launch the game once, then retry.' -ForegroundColor Red
+    exit 1
+}
 $PresetDir  = Join-Path $ModDir "presets\$Preset"
 $BackupDir  = Join-Path $ModDir 'backup'
 
@@ -33,10 +39,6 @@ foreach ($proc in $GameProcesses) {
 if (-not (Test-Path $PresetDir)) {
     Write-Host "[ERROR] Preset not found: $PresetDir" -ForegroundColor Red
     exit 1
-}
-
-if (-not (Test-Path $ConfigDir)) {
-    New-Item -ItemType Directory -Path $ConfigDir -Force | Out-Null
 }
 
 if (-not (Test-Path $BackupDir)) {
@@ -201,6 +203,7 @@ Write-Host ''
 Write-Host '========================================' -ForegroundColor Cyan
 Write-Host "  Preset applied: $($presetNames[$Preset])" -ForegroundColor Green
 Write-Host '========================================' -ForegroundColor Cyan
+Write-Host "  Game:   $gameRoot"
 Write-Host "  Config: $ConfigDir"
 Write-Host "  Backup: $BackupDir"
 Write-Host ''
